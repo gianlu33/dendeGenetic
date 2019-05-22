@@ -4,9 +4,7 @@ import random
 import threading
 from solution import Solution
 from multiprocessing.dummy import Pool as ThreadPool
-
-#parameters for the algorithm
-POPULATION_SIZE = 20
+import parameters as par
 
 #other things
 population = []
@@ -24,7 +22,7 @@ def start(output_file, input_file = ""):
         population = serializer.read_from_file(input_file)
 
     #if there are more solutions than POPULATION_SIZE, reduce array
-    population = population[0:POPULATION_SIZE]
+    population = population[0:par.POPULATION_SIZE]
     #if there are less solutions than POPULATION_SIZE, add them
     initialize_solutions()
 
@@ -36,7 +34,7 @@ def start(output_file, input_file = ""):
             children = combination()
 
             #local search in multithreading
-            for i in range(POPULATION_SIZE):
+            for i in range(par.POPULATION_SIZE):
                 thread = threading.Thread(target=local_search, args=(children[i],))
                 threads.append(thread)
                 thread.start()
@@ -61,20 +59,42 @@ def start(output_file, input_file = ""):
 
 def initialize_solutions():
     global population
+    threads = []
 
-    while len(population) < POPULATION_SIZE:
-        population.append(new_random_solution())
+    numsol = par.POPULATION_SIZE - len(population)
 
-#TODO
+    for i in range(numsol):
+        thread = threading.Thread(target=new_random_solution)
+        threads.append(thread)
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+    del threads[:]
+
 def new_random_solution():
+    global lock
+    global population
     array = []
+    value = -1
+
+    probability = round(par.POPULATION_SIZE / par.AVERAGE_NUM_COLUMNS)
 
     for i in range(20):
-        array.append(random.choice([True, False]))
+        if random.randint(1, probability) == 1:
+            array.append(True)
+        else:
+            array.append(False)
 
-    value = random.randint(0, 5000)
+    #start simulation in order to obtain the value..
+    #TODO
+    value = random.randint(0,5000)
 
-    return Solution(array, value)
+    sol = Solution(array, value)
+
+    with lock:
+        population.append(sol)
+
 
 def print_solutions():
     global population
@@ -95,9 +115,8 @@ def local_search(child):
     global stop
     global lock
 
-    with lock:
-        while not stop:
-            print(threading.currentThread().getName())
+    while not stop:
+        print(threading.currentThread().getName())
 
 #TODO
 def check_best_solution():
