@@ -1,0 +1,14 @@
+//
+// Created by Gianluca on 24/05/2019.
+//
+
+#ifndef DENDEGENETIC_LOCALSEARCHMANAGER_H
+#define DENDEGENETIC_LOCALSEARCHMANAGER_H
+
+
+class LocalSearchManager {
+
+};
+
+
+#endif //DENDEGENETIC_LOCALSEARCHMANAGER_H
