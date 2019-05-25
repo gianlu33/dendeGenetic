@@ -7,25 +7,17 @@
 
 #include <windows.h>
 #include <memory>
+
+#include "ProcessManager.h"
 #include "Solution.h"
 
 class Solution;
 
-class AnalysisManager {
+class AnalysisManager : public ProcessManager {
 public:
     explicit AnalysisManager(std::shared_ptr<Solution> sol);
     ~AnalysisManager();
-    void operator()(int id);
-
-
-private:
-    void startProcess();
-
-    std::shared_ptr<Solution> solution_;
-    PROCESS_INFORMATION pi_;
-    STARTUPINFO si_;
-    bool created_;
-
+    void operator()(int id) override;
 };
 
 
