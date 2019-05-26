@@ -3,3 +3,49 @@
 //
 
 #include "IOManager.h"
+#include <fstream>
+#include <array>
+
+std::vector<std::shared_ptr<Solution>> IOManager::readInput(char *filename) {
+    std::vector<std::shared_ptr<Solution>> sols;
+    std::ifstream ifs(filename);
+    ifs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+    int n;
+
+    //read n rows
+    ifs >> n;
+
+    for(int i=0; i<n; i++){
+        float objf;
+        std::array<bool, 20> array{};
+
+        //read objf
+        ifs >> objf;
+
+        //read element of a solution
+        for(int j=0; j<20; j++)
+            ifs >> array[j];
+
+        sols.push_back(std::make_shared<Solution>(objf, array));
+    }
+
+    ifs.close();
+
+    return sols;
+}
+
+void IOManager::writeOutput(char *filename, std::vector<std::shared_ptr<Solution>> &vect) {
+    std::ofstream ofs(filename);
+    ofs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+    ofs << vect.size() << std::endl;
+
+    for(auto& sol : vect){
+        ofs << sol->getObjectiveFunction() << std::endl;
+
+        for(auto &value : sol->getArray())
+            ofs << value << " ";
+        ofs << std::endl;
+    }
+}

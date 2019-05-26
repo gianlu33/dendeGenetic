@@ -15,7 +15,7 @@ public:
     float getObjectiveFunction();
     void setArray(std::array<bool, 20> ind);
     void setArrayValue(int index, bool value);
-    std::array<bool, 20> getArray();
+    std::array<bool, 20> getArray(); //copied
 
 private:
     float objectiveFunction_;

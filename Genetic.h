@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <random>
 
 #include "ProcessManager.h"
 #include "AnalysisManager.h"
@@ -27,11 +28,16 @@ public:
     void run();
 
 private:
+    void addRandomSolutions(int number);
+    std::array<bool, 20> generateRandomArray(std::mt19937 &gen, std::uniform_real_distribution<double> &dist);
+    void sortArray();
+
+    const int numColumns_ = 8;
     int numPopulation_;
     int cpus_;
     char *output_file_;
     std::vector<std::shared_ptr<ProcessManager>> processManagers_;
-    std::vector<std::shared_ptr<Solution>> solutions_;
+    std::vector<std::shared_ptr<Solution>> population_;
 };
 
 

@@ -5,6 +5,7 @@
 
 #include "Genetic.h"
 #include "Solution.h"
+#include "IOManager.h"
 
 char programName[20] = "prova.exe";
 std::shared_ptr<Genetic> gen;
@@ -21,8 +22,9 @@ int main(int argc, char **argv) {
         std::cout << "Usage: " << argv[0] << " [input_file] <output_file>" << std::endl;
     }*/
 
-    char tmp[10] = "ciao";
-    gen = std::make_shared<Genetic>(16, tmp);
+    char in[20] = "aaa.txt";
+    char out[20] = "bbb.txt";
+    gen = std::make_shared<Genetic>(16, in, out);
 
     //setting signal handler
     signal(SIGINT, signalHandler);
@@ -31,5 +33,6 @@ int main(int argc, char **argv) {
     gen->run();
 
     gen.reset();
+
     return 0;
 }
