@@ -10,15 +10,19 @@
 class Solution {
 public:
     Solution();
-    Solution(float objf, std::array<bool, 20> ind);
-    void setObjectiveFunction(float objf);
-    float getObjectiveFunction();
+    Solution(double objf, std::array<bool, 20> ind);
+    Solution(std::array<bool, 20> ind);
+    void setObjectiveFunction(double objf);
+    double getObjectiveFunction();
     void setArray(std::array<bool, 20> ind);
     void setArrayValue(int index, bool value);
+    bool getArrayValue(int index);
+    void flip(int index);
     std::array<bool, 20> getArray(); //copied
+    std::string to_string();
 
 private:
-    float objectiveFunction_;
+    double objectiveFunction_;
     std::array<bool, 20> indexes_;
 };
 

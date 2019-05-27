@@ -42,10 +42,7 @@ void IOManager::writeOutput(char *filename, std::vector<std::shared_ptr<Solution
     ofs << vect.size() << std::endl;
 
     for(auto& sol : vect){
-        ofs << sol->getObjectiveFunction() << std::endl;
-
-        for(auto &value : sol->getArray())
-            ofs << value << " ";
+        ofs << sol->to_string();
         ofs << std::endl;
     }
 }

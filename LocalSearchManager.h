@@ -6,12 +6,16 @@
 #define DENDEGENETIC_LOCALSEARCHMANAGER_H
 
 #include "ProcessManager.h"
+#include <random>
 
 class LocalSearchManager : public ProcessManager {
 public:
-    explicit LocalSearchManager(std::shared_ptr<Solution> sol);
+    LocalSearchManager(std::shared_ptr<Solution> sol, std::mt19937 &randomGen);
     ~LocalSearchManager();
     void operator()(int id) override;
+
+private:
+    std::mt19937 &randomGen_;
 };
 
 

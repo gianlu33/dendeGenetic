@@ -6,6 +6,8 @@
 #include <cstring>
 #include <string>
 #include <iostream>
+#include <random>
+#include <time.h>
 
 AnalysisManager::AnalysisManager(std::shared_ptr<Solution> sol) : ProcessManager(std::move(sol)) {
 
@@ -16,12 +18,6 @@ AnalysisManager::~AnalysisManager() {
 }
 
 void AnalysisManager::operator()(int id) {
-    startProcess();
-
-    WaitForSingleObject( pi_.hProcess, INFINITE );
-    CloseHandle( pi_.hProcess );
-    CloseHandle( pi_.hThread );
-    running_ = false;
-
-    //read from file and update objf value
+    runAnalysis();
+    solution_->setObjectiveFunction(computeObjf());
 }

@@ -21,6 +21,8 @@ public:
 
 protected:
     void startProcess();
+    void runAnalysis();
+    double computeObjf();
 
     std::shared_ptr<Solution> solution_;
     PROCESS_INFORMATION pi_;

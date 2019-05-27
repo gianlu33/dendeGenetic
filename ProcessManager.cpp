@@ -6,6 +6,8 @@
 #include <cstring>
 #include <string>
 #include <iostream>
+#include <random>
+#include <time.h>
 
 extern char programName[20];
 
@@ -39,4 +41,24 @@ void ProcessManager::startProcess() {
                              nullptr,           // Use parent's starting directory
                              &si_,            // Pointer to STARTUPINFO structure
                              &pi_ ) != 0;
+}
+
+void ProcessManager::runAnalysis() {
+    startProcess();
+
+    WaitForSingleObject( pi_.hProcess, INFINITE );
+    CloseHandle( pi_.hProcess );
+    CloseHandle( pi_.hThread );
+    running_ = false;
+}
+
+double ProcessManager::computeObjf() {
+    //read from file and update objf value
+    //TODO togliere random e mettere vera analisi
+    auto dist = std::uniform_real_distribution<double>(0,50000);
+    auto dev = std::random_device();
+    auto gen = std::mt19937{dev()};
+    gen.seed(time(NULL));
+
+    return dist(gen);
 }
