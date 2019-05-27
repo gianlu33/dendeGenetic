@@ -3,11 +3,8 @@
 //
 
 #include "AnalysisManager.h"
-#include <cstring>
-#include <string>
-#include <iostream>
-#include <random>
-#include <time.h>
+
+#include <iostream> //TODO vedi se tenere
 
 AnalysisManager::AnalysisManager(std::shared_ptr<Solution> sol) : ProcessManager(std::move(sol)) {
 

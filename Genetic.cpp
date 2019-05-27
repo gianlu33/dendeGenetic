@@ -4,7 +4,7 @@
 #include <memory>
 #include <thread>
 #include <iostream>
-#include <chrono>
+#include <chrono> //TODO rimuovi
 #include <time.h>
 #include <sstream>
 
@@ -131,6 +131,7 @@ void Genetic::run() {
         std::cout << "Best solution until now:" << std::endl;
         std::cout << population_[0]->to_string() << std::endl;
 
+        //TODO rimuovere
         std::this_thread::sleep_for(std::chrono::seconds(20));
     }
 }
@@ -273,8 +274,5 @@ void Genetic::test() {
 }
 
 void Genetic::initializeGenerator(){
-    auto dev = std::random_device();
-    randomGen_ = std::mt19937(dev());
-    //TODO vedi seed
-    randomGen_.seed(time(NULL));
+    randomGen_ = std::mt19937(static_cast<unsigned int>(time(nullptr)));
 }

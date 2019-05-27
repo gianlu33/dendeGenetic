@@ -17,8 +17,6 @@ public:
     static std::vector<std::shared_ptr<Solution>> readInput(char *filename);
     static void writeOutput(char *filename, std::vector<std::shared_ptr<Solution>> &vect);
     //TODO function to read a solution from the analysis
-
-
 };
 
 

@@ -5,7 +5,6 @@
 #ifndef DENDEGENETIC_GENETIC_H
 #define DENDEGENETIC_GENETIC_H
 
-#include <string>
 #include <vector>
 #include <random>
 

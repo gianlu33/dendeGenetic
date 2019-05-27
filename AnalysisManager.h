@@ -5,7 +5,6 @@
 #ifndef DENDEGENETIC_ANALYSISMANAGER_H
 #define DENDEGENETIC_ANALYSISMANAGER_H
 
-#include <windows.h>
 #include <memory>
 
 #include "ProcessManager.h"

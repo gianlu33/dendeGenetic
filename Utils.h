@@ -5,9 +5,7 @@
 #ifndef DENDEGENETIC_UTILS_H
 #define DENDEGENETIC_UTILS_H
 
-#include <array>
-#include <random>
-#include <time.h>
+#include <vector>
 #include <algorithm>
 
 namespace utils {
