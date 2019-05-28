@@ -20,14 +20,18 @@ public:
 
 
 protected:
-    void startProcess();
-    void runAnalysis();
-    double computeObjf();
+    void startProcess(std::string &folderName);
+    double runAnalysis(std::string folderName);
+    static double computeObjf(std::string folderName);
+    static void createDirectory(std::string &folderName);
+    static void cleanFS(std::string &folderName);
+    static std::string getFolderName(int id);
+    void redirectOutputToNull(std::string &folderName);
 
-    std::shared_ptr<Solution> solution_;
+        std::shared_ptr<Solution> solution_;
     PROCESS_INFORMATION pi_;
     STARTUPINFO si_;
-    bool running_;
+    bool running_ = false;
 };
 
 

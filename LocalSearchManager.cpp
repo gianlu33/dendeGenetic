@@ -9,7 +9,7 @@
 #include "Utils.h"
 
 LocalSearchManager::LocalSearchManager(std::shared_ptr<Solution> sol, std::mt19937 &randomGen) :
-    ProcessManager(std::move(sol)),
+    ProcessManager(sol),
     randomGen_(randomGen){}
 
 LocalSearchManager::~LocalSearchManager() {
@@ -21,6 +21,14 @@ void LocalSearchManager::operator()(int id) {
     //and according to that ordering, change the value of the index in array
     //after that, recompute the objf, and if it's an improvement "jump" to that solution, and repeat
     auto indexes = utils::genIndexedVector(20);
+    auto folderName = getFolderName(id);
+    double newObjf;
+    try {
+        createDirectory(folderName);
+    }
+    catch(...){
+        return;
+    }
 
     //TODO vedi la durata di questo while
     while(true){
@@ -32,8 +40,12 @@ void LocalSearchManager::operator()(int id) {
             solution_->flip(indexes[i]);
 
             //analysis..
-            runAnalysis();
-            auto newObjf = computeObjf();
+            try {
+                newObjf = runAnalysis(folderName);
+            }
+            catch(...){
+                continue;
+            }
 
             if(newObjf < objf){
                 solution_->setObjectiveFunction(newObjf);
@@ -49,5 +61,6 @@ void LocalSearchManager::operator()(int id) {
             break;
     }
 
+    cleanFS(folderName);
 }
 

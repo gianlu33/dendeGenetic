@@ -6,7 +6,7 @@
 
 #include <iostream> //TODO vedi se tenere
 
-AnalysisManager::AnalysisManager(std::shared_ptr<Solution> sol) : ProcessManager(std::move(sol)) {
+AnalysisManager::AnalysisManager(std::shared_ptr<Solution> sol) : ProcessManager(sol) {
 
 }
 
@@ -15,6 +15,18 @@ AnalysisManager::~AnalysisManager() {
 }
 
 void AnalysisManager::operator()(int id) {
-    runAnalysis();
-    solution_->setObjectiveFunction(computeObjf());
+    auto folderName = getFolderName(id);
+
+    try {
+        createDirectory(folderName);
+        auto objf = runAnalysis(folderName);
+        solution_->setObjectiveFunction(objf);
+        cleanFS(folderName);
+    }
+    catch(...){
+        cleanFS(folderName);
+        return;
+    }
+
+
 }

@@ -54,7 +54,13 @@ std::array<bool, 20> Solution::getArray() {
 std::string Solution::to_string() {
     std::stringstream ss;
 
-    ss << objectiveFunction_ << std::endl;
+    ss << objectiveFunction_ << std::endl << getArrayString();
+
+    return ss.str();
+}
+
+std::string Solution::getArrayString() {
+    std::stringstream ss;
 
     for(auto &value : indexes_)
         ss << value << " ";

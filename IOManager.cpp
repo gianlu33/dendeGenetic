@@ -5,6 +5,9 @@
 #include "IOManager.h"
 #include <fstream>
 #include <array>
+#include <cmath>
+
+#include <iostream>
 
 std::vector<std::shared_ptr<Solution>> IOManager::readInput(char *filename) {
     std::vector<std::shared_ptr<Solution>> sols;
@@ -45,4 +48,29 @@ void IOManager::writeOutput(char *filename, std::vector<std::shared_ptr<Solution
         ofs << sol->to_string();
         ofs << std::endl;
     }
+}
+
+double IOManager::getMaxAbsValue(std::string filename) {
+    std::ifstream ifs(filename);
+    ifs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    double max = -1, temp;
+
+    while(true){
+        try {
+            ifs >> temp; //nothing
+        }
+        catch(...){
+            //end of file
+            break;
+        }
+
+        ifs >> temp; //value
+
+        temp = std::abs(temp);
+
+        if(max == -1 || temp > max)
+            max = temp;
+    }
+
+    return max;
 }

@@ -20,6 +20,7 @@ public:
     void flip(int index);
     std::array<bool, 20> getArray(); //copied
     std::string to_string();
+    std::string getArrayString();
 
 private:
     double objectiveFunction_;
