@@ -4,9 +4,9 @@
 #include <memory>
 #include <thread>
 #include <iostream>
-#include <chrono> //TODO rimuovi
 #include <time.h>
 #include <sstream>
+#include <cmath>
 
 #include "Genetic.h"
 #include "AnalysisManager.h"
@@ -18,14 +18,9 @@ Genetic::Genetic(int numPopulation, int nElite, char *output_file) {
     numPopulation_ = numPopulation;
     nElite_ = nElite;
     output_file_ = output_file;
+    bestSolution_ = std::make_shared<Solution>();
 
     initializeGenerator();
-
-    //create random solutions
-    addRandomSolutions(numPopulation);
-
-    //sort array
-    sortPopulation();
 }
 
 Genetic::Genetic(int numPopulation, int nElite, char *input_file, char *output_file) {
@@ -33,6 +28,7 @@ Genetic::Genetic(int numPopulation, int nElite, char *input_file, char *output_f
     numPopulation_ = numPopulation;
     nElite_ = nElite;
     output_file_ = output_file;
+    bestSolution_ = std::make_shared<Solution>();
 
     initializeGenerator();
 
@@ -41,27 +37,24 @@ Genetic::Genetic(int numPopulation, int nElite, char *input_file, char *output_f
         population_ = IOManager::readInput(input_file);
     }
     catch(...){
-        std::cout << "Error in reading from input file. Creating random solutions.." << std::endl;
+        std::cout << "Error in reading from input file. Continuing with a new run" << std::endl;
         population_.clear();
-        addRandomSolutions(numPopulation);
+        return;
     }
+
+    if(!population_.empty())
+        checkAndSetBestSolution(population_[0]);
 
     //if population is more than numPopulation, delete the worst solutions
     while(population_.size() > numPopulation)
         population_.pop_back();
-
-    //if population is less than numPopulation, add random solutions
-    if(population_.size() < numPopulation)
-        addRandomSolutions(numPopulation - static_cast<int>(population_.size()));
-
-    //sort array (not necessary if no random solutions are created, but do it anyway)
-    sortPopulation();
 }
 
 Genetic::~Genetic() {
     //empty vectors of managers and write population to file
-    std::cout << "destroying Genetic" << std::endl;
     processManagers_.clear();
+
+    if(!init_) return;
 
     //sort array (not necessary, but do it anyway)
     sortPopulation();
@@ -82,7 +75,30 @@ Genetic::~Genetic() {
     }
 }
 
+void Genetic::init(){
+    if(population_.size() >= numPopulation_){
+       init_ = true;
+       return;
+    }
+
+    //create random solutions
+    addRandomSolutions(numPopulation_ - static_cast<int>(population_.size()));
+
+    //sort array
+    sortPopulation();
+
+    init_ = true;
+
+    std::cout << "Sleeping for 30 sec.." << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(30));
+}
+
 void Genetic::run() {
+    if(population_.empty()){
+        std::cout << "You must call the init() method first!" << std::endl;
+        return;
+    }
+
     int numGeneration = 0;
     std::vector<std::shared_ptr<Solution>> children;
 
@@ -109,13 +125,13 @@ void Genetic::run() {
         //compute objf
         std::cout << "Computing objective function for children" << std::endl;
         for(auto child : children)
-            processManagers_.push_back(std::make_shared<AnalysisManager>(child));
+            processManagers_.push_back(std::make_shared<AnalysisManager>(child, *this));
         runPool();
 
         //local search
         std::cout << "Starting local search" << std::endl;
         for(auto child : children)
-            processManagers_.push_back(std::make_shared<LocalSearchManager>(child, randomGen_));
+            processManagers_.push_back(std::make_shared<LocalSearchManager>(child, *this, randomGen_));
         runPool();
 
         //new population
@@ -131,39 +147,29 @@ void Genetic::run() {
         std::cout << "Best solution until now:" << std::endl;
         std::cout << population_[0]->to_string() << std::endl;
 
-        //TODO rimuovere
-        std::this_thread::sleep_for(std::chrono::seconds(20));
+        std::cout << "Sleeping for 30 sec.." << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(30));
     }
 }
 
 void Genetic::addRandomSolutions(int number) {
-    std::vector<std::shared_ptr<Solution>> newSols;
-
-    auto dist = std::uniform_real_distribution<double>(0,1);
-
-    //TODO da togliere random objf e mettere poi analisi
-    auto distTMP = std::uniform_real_distribution<double>(0,50000);
-
-    for(int i=0; i<number; i++)
-        newSols.push_back(std::make_shared<Solution>(distTMP(randomGen_), generateRandomArray(randomGen_, dist)));
-
     //analysis..
     for(int i=0; i<number; i++){
-        processManagers_.push_back(std::make_shared<AnalysisManager>(newSols[i]));
+        auto sol = std::make_shared<Solution>(generateRandomArray());
+        processManagers_.push_back(std::make_shared<AnalysisManager>(sol, *this));
+        population_.push_back(sol);
     }
     runPool();
-
-    //push to population
-    for(auto &sol : newSols)
-        population_.push_back(sol);
 }
 
-std::array<bool, 20> Genetic::generateRandomArray(std::mt19937 &gen, std::uniform_real_distribution<double> &dist) {
+std::array<bool, 20> Genetic::generateRandomArray() {
+    std::uniform_real_distribution<double> dist;
+
     std::array<bool, 20> array{};
     double probability = numColumns_ / 20.0;
 
     for(int i=0; i<20; i++){
-        array[i] = dist(gen) <= probability;
+        array[i] = dist(randomGen_) <= probability;
     }
 
     return array;
@@ -176,9 +182,11 @@ void Genetic::sortPopulation() {
 }
 
 void Genetic::runPool(){
-    ctpl::thread_pool pool(cpus_);
+    int nthreads = std::min(cpus_, static_cast<int>(processManagers_.size()));
 
-    for(auto& man : processManagers_){
+    ctpl::thread_pool pool(nthreads);
+
+    for(auto &man : processManagers_){
         pool.push(std::ref(*man));
     }
 
@@ -186,7 +194,6 @@ void Genetic::runPool(){
     pool.stop(true);
     std::cout << "Finished" << std::endl;
     processManagers_.clear();
-    pool.clear_queue();
 }
 
 std::shared_ptr<Solution> Genetic::tournamentSelection() {
@@ -250,6 +257,7 @@ double Genetic::getMutationRate(std::shared_ptr<Solution> p1, std::shared_ptr<So
     return similarity * 0.80; //TODO vedere questo valore
 }
 
+/*
 void Genetic::test() {
     //test tournament selection
     auto par1 = tournamentSelection();
@@ -272,7 +280,18 @@ void Genetic::test() {
     std::cout << "Child mutated:" << std::endl;
     std::cout << child->to_string() << std::endl;
 }
+*/
 
 void Genetic::initializeGenerator(){
     randomGen_ = std::mt19937(static_cast<unsigned int>(time(nullptr)));
+}
+
+void Genetic::checkAndSetBestSolution(std::shared_ptr<Solution> sol) {
+    std::lock_guard<std::mutex> guard(mutex_);
+
+    if(sol->getObjectiveFunction() < bestSolution_->getObjectiveFunction()) {
+        bestSolution_ = std::make_shared<Solution>(sol->getObjectiveFunction(),sol->getArray());
+        std::cout << "New best solution!" << std::endl;
+        std::cout << bestSolution_->to_string() << std::endl;
+    }
 }

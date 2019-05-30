@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <random>
+#include <mutex>
 
 #include "ProcessManager.h"
 #include "AnalysisManager.h"
@@ -25,12 +26,15 @@ public:
     Genetic(int numPopulation, int nElite, char *input_file, char *output_file);
     ~Genetic();
 
+    void init();
     void run();
-    void test();
+    //void test();
+
+    void checkAndSetBestSolution(std::shared_ptr<Solution> sol);
 
 private:
     void addRandomSolutions(int number);
-    std::array<bool, 20> generateRandomArray(std::mt19937 &gen, std::uniform_real_distribution<double> &dist);
+    std::array<bool, 20> generateRandomArray();
     void sortPopulation();
     void runPool();
     std::shared_ptr<Solution> tournamentSelection();
@@ -48,6 +52,9 @@ private:
     std::vector<std::shared_ptr<ProcessManager>> processManagers_;
     std::vector<std::shared_ptr<Solution>> population_;
     std::mt19937 randomGen_;
+    bool init_ = false;
+    std::shared_ptr<Solution> bestSolution_;
+    std::mutex mutex_;
 };
 
 

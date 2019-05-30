@@ -8,13 +8,13 @@
 #include <memory>
 
 #include "ProcessManager.h"
-#include "Solution.h"
 
 class Solution;
+class Genetic;
 
 class AnalysisManager : public ProcessManager {
 public:
-    explicit AnalysisManager(std::shared_ptr<Solution> sol);
+    explicit AnalysisManager(std::shared_ptr<Solution> sol, Genetic &gen);
     ~AnalysisManager();
     void operator()(int id) override;
 };

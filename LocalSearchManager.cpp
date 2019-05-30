@@ -7,9 +7,12 @@
 #include <algorithm>
 
 #include "Utils.h"
+#include "Genetic.h"
+#include "ProcessManager.h"
+#include "Solution.h"
 
-LocalSearchManager::LocalSearchManager(std::shared_ptr<Solution> sol, std::mt19937 &randomGen) :
-    ProcessManager(sol),
+LocalSearchManager::LocalSearchManager(std::shared_ptr<Solution> sol, Genetic &gen, std::mt19937 &randomGen) :
+    ProcessManager(sol, gen),
     randomGen_(randomGen){}
 
 LocalSearchManager::~LocalSearchManager() {
@@ -17,14 +20,15 @@ LocalSearchManager::~LocalSearchManager() {
 }
 
 void LocalSearchManager::operator()(int id) {
+    setFolderName(id);
+
     //first improvement: create random ordered sequence from 0 to 20
     //and according to that ordering, change the value of the index in array
     //after that, recompute the objf, and if it's an improvement "jump" to that solution, and repeat
     auto indexes = utils::genIndexedVector(20);
-    auto folderName = getFolderName(id);
     double newObjf;
     try {
-        createDirectory(folderName);
+        createDirectory();
     }
     catch(...){
         return;
@@ -41,14 +45,18 @@ void LocalSearchManager::operator()(int id) {
 
             //analysis..
             try {
-                newObjf = runAnalysis(folderName);
+                newObjf = runAnalysis();
+                std::cout << "[" << id << "] analysis completed: " << newObjf << std::endl;
             }
             catch(...){
+                std::cout << "[" << id << "] analysis failed" << std::endl;
+                solution_->flip(indexes[i]);
                 continue;
             }
 
             if(newObjf < objf){
                 solution_->setObjectiveFunction(newObjf);
+                gen_.checkAndSetBestSolution(solution_);
                 break;
             }
 
@@ -60,7 +68,5 @@ void LocalSearchManager::operator()(int id) {
         if(objf == solution_->getObjectiveFunction())
             break;
     }
-
-    cleanFS(folderName);
 }
 

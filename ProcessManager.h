@@ -7,31 +7,33 @@
 
 #include <memory>
 #include <windows.h>
+#include <string>
 
-#include "Solution.h"
-
+class Genetic;
 class Solution;
 
 class ProcessManager {
 public:
-    explicit ProcessManager(std::shared_ptr<Solution> sol);
+    ProcessManager(std::shared_ptr<Solution> sol, Genetic &gen);
     ~ProcessManager();
     virtual void operator()(int id) = 0;
+    static double computeObjf(std::string &folderName);
 
 
 protected:
-    void startProcess(std::string &folderName);
-    double runAnalysis(std::string folderName);
-    static double computeObjf(std::string folderName);
-    static void createDirectory(std::string &folderName);
-    static void cleanFS(std::string &folderName);
-    static std::string getFolderName(int id);
-    void redirectOutputToNull(std::string &folderName);
+    void startProcess();
+    double runAnalysis();
+    void createDirectory();
+    void cleanFS();
+    void setFolderName(int id);
+    void redirectOutputToNull();
 
-        std::shared_ptr<Solution> solution_;
+    std::shared_ptr<Solution> solution_;
     PROCESS_INFORMATION pi_;
     STARTUPINFO si_;
     bool running_ = false;
+    std::string folderName_;
+    Genetic &gen_;
 };
 
 

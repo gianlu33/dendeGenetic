@@ -3,7 +3,6 @@
 //
 
 #include "ProcessManager.h"
-#include <string>
 #include <windows.h>
 #include <sstream>
 #include <iostream> //TODO vedere se tenere
@@ -12,9 +11,13 @@
 #include "GeneticException.h"
 #include "IOManager.h"
 
+#include <thread>
+#include <chrono>
+
 extern char programName[50];
 
-ProcessManager::ProcessManager(std::shared_ptr<Solution> sol) {
+ProcessManager::ProcessManager(std::shared_ptr<Solution> sol, Genetic &gen) :
+    gen_(gen){
     solution_ = std::move(sol);
 }
 
@@ -27,21 +30,24 @@ ProcessManager::~ProcessManager() {
         CloseHandle( pi_.hThread );
         CloseHandle(si_.hStdError);
     }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    if(!folderName_.empty())
+        cleanFS();
 }
 
-void ProcessManager::startProcess(std::string &folderName) {
+void ProcessManager::startProcess() {
     std::stringstream name;
-    name << programName <<  " " << folderName << " " << solution_->getArrayString();
+    name << programName <<  " " << folderName_ << " " << solution_->getArrayString();
 
-    char nameChar[200];
+    char nameChar[400];
     strcpy(nameChar, name.str().c_str());
-
 
     ZeroMemory( &si_, sizeof(si_) );
     si_.cb = sizeof(si_);
     ZeroMemory( &pi_, sizeof(pi_) );
 
-    redirectOutputToNull(folderName);
+    redirectOutputToNull();
 
     running_ = CreateProcess(nullptr,   // No module name (use command line)
                              nameChar,        // Command line
@@ -56,12 +62,13 @@ void ProcessManager::startProcess(std::string &folderName) {
 
     if(!running_)
         throw GeneticException();
+
 }
 
-double ProcessManager::runAnalysis(std::string folderName) {
+double ProcessManager::runAnalysis() {
     DWORD returnValue;
 
-    startProcess(folderName);
+    startProcess();
     WaitForSingleObject( pi_.hProcess, INFINITE );
 
     int exitcode = GetExitCodeProcess(pi_.hProcess, &returnValue);
@@ -70,13 +77,14 @@ double ProcessManager::runAnalysis(std::string folderName) {
     CloseHandle(si_.hStdError);
     running_ = false;
 
-    if(!exitcode || returnValue < 0)
+    if(!exitcode || returnValue != 0) {
+        std::cout << "Failed" << std::endl;
         throw GeneticException();
-
-    return computeObjf(folderName);
+    }
+    return computeObjf(folderName_);
 }
 
-double ProcessManager::computeObjf(std::string folderName) {
+double ProcessManager::computeObjf(std::string &folderName) {
     //read from file and compute objf value
     std::vector<double> values;
 
@@ -95,33 +103,34 @@ double ProcessManager::computeObjf(std::string folderName) {
     for(double &val : values)
         tot += std::pow(val, 2);
 
+    //TODO vedi se aggiungere un moltiplicatore per tener conto del num di colonne
     return std::sqrt(tot);
 }
 
-void ProcessManager::createDirectory(std::string &folderName){
-    if(!CreateDirectoryA(folderName.c_str(), nullptr))
+void ProcessManager::createDirectory(){
+    if(!CreateDirectoryA(folderName_.c_str(), nullptr))
         throw GeneticException();
 }
 
-void ProcessManager::cleanFS(std::string &folderName) {
+void ProcessManager::cleanFS() {
     for(int i=0; i<5; i++){
-        std::string name = folderName + "/" + std::to_string(i) + ".txt";
+        std::string name = folderName_ + "/" + std::to_string(i) + ".txt";
         DeleteFileA(name.c_str());
     }
 
-    std::string nullfile = folderName + "/null";
+    std::string nullfile = folderName_ + "/null";
     DeleteFileA(nullfile.c_str());
 
-    RemoveDirectoryA(folderName.c_str());
+    RemoveDirectoryA(folderName_.c_str());
 }
 
-std::string ProcessManager::getFolderName(int id){
-    return "__folder" + std::to_string(id) + "__";
+void ProcessManager::setFolderName(int id){
+    folderName_ = "__folder" + std::to_string(id) + "__";
 }
 
-void ProcessManager::redirectOutputToNull(std::string &folderName){
-    std::string filename = folderName + "/null";
-    char namech[50];
+void ProcessManager::redirectOutputToNull(){
+    std::string filename = folderName_ + "/null";
+    char namech[100];
 
     strcpy(namech, filename.c_str());
 

@@ -8,9 +8,12 @@
 #include "ProcessManager.h"
 #include <random>
 
+class Genetic;
+class Solution;
+
 class LocalSearchManager : public ProcessManager {
 public:
-    LocalSearchManager(std::shared_ptr<Solution> sol, std::mt19937 &randomGen);
+    LocalSearchManager(std::shared_ptr<Solution> sol, Genetic &gen, std::mt19937 &randomGen);
     ~LocalSearchManager();
     void operator()(int id) override;
 

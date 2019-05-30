@@ -4,11 +4,17 @@
 
 #include "Genetic.h"
 
-char programName[20] = "prova.exe";
-std::shared_ptr<Genetic> gen;
+#include "AnalysisManager.h"
+#include "Solution.h"
+#include <array>
+#include "GeneticException.h"
+#include <windows.h>
 
+std::shared_ptr<Genetic> gen;
+char programName[50] = "opensees 5MainFRPGen.tcl";
 
 void signalHandler(int signal){
+    std::cout << "Cleaning.." << std::endl;
     gen.reset();
     exit(0);
 }
@@ -19,20 +25,26 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    if(argc == 2) {
-        gen = std::make_shared<Genetic>(16, 1, argv[1]);
-    }
-    else {
-        gen = std::make_shared<Genetic>(16, 1, argv[1], argv[2]);
-    }
+    const int NUM_POPULATION = 4;
+    const int NUM_ELITE = 1;
 
     //setting signal handler
     signal(SIGINT, signalHandler);
 
+    if(argc == 2) {
+        gen = std::make_shared<Genetic>(NUM_POPULATION, NUM_ELITE, argv[1]);
+    }
+    else {
+        gen = std::make_shared<Genetic>(NUM_POPULATION, NUM_ELITE, argv[1], argv[2]);
+    }
+
     //run
+    std::cout << "Initializing.." << std::endl;
+    gen->init();
+    std::cout << "Running.." << std::endl;
     gen->run();
 
     gen.reset();
 
-    return 0;
+    //std::cout << "[debug] Exiting.." << std::endl;
 }

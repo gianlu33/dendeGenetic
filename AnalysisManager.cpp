@@ -3,10 +3,14 @@
 //
 
 #include "AnalysisManager.h"
+#include "ProcessManager.h"
+#include "Genetic.h"
+#include "Solution.h"
 
-#include <iostream> //TODO vedi se tenere
+#include <iostream>
 
-AnalysisManager::AnalysisManager(std::shared_ptr<Solution> sol) : ProcessManager(sol) {
+AnalysisManager::AnalysisManager(std::shared_ptr<Solution> sol, Genetic &gen) :
+    ProcessManager(sol, gen) {
 
 }
 
@@ -14,17 +18,17 @@ AnalysisManager::~AnalysisManager() {
     //std::cout << "destroying AnalysisManager" << std::endl;
 }
 
-void AnalysisManager::operator()(int id) {
-    auto folderName = getFolderName(id);
+void AnalysisManager::operator() (int id) {
+    setFolderName(id);
 
     try {
-        createDirectory(folderName);
-        auto objf = runAnalysis(folderName);
+        createDirectory();
+        auto objf = runAnalysis();
         solution_->setObjectiveFunction(objf);
-        cleanFS(folderName);
+        gen_.checkAndSetBestSolution(solution_);
+        std::cout << "[" << id << "] analysis completed: " << objf << std::endl;
     }
     catch(...){
-        cleanFS(folderName);
         return;
     }
 
