@@ -7,6 +7,8 @@
 #include <time.h>
 #include <sstream>
 #include <cmath>
+#include <ctime>
+#include <chrono>
 
 #include "Genetic.h"
 #include "AnalysisManager.h"
@@ -19,6 +21,7 @@ Genetic::Genetic(int numPopulation, int nElite, char *output_file) {
     nElite_ = nElite;
     output_file_ = output_file;
     bestSolution_ = std::make_shared<Solution>();
+    stop_ = false;
 
     initializeGenerator();
 }
@@ -29,6 +32,7 @@ Genetic::Genetic(int numPopulation, int nElite, char *input_file, char *output_f
     nElite_ = nElite;
     output_file_ = output_file;
     bestSolution_ = std::make_shared<Solution>();
+    stop_ = false;
 
     initializeGenerator();
 
@@ -52,12 +56,20 @@ Genetic::Genetic(int numPopulation, int nElite, char *input_file, char *output_f
 
 Genetic::~Genetic() {
     //empty vectors of managers and write population to file
+    stop_ = true;
     processManagers_.clear();
 
     if(!init_) return;
 
     //sort array (not necessary, but do it anyway)
     sortPopulation();
+
+    //add best solution if not yet present
+    auto bestSol = getBestSolution();
+    if(population_[0]->getObjectiveFunction() > bestSol->getObjectiveFunction()){
+        population_.insert(population_.begin(), bestSol);
+        population_.pop_back();
+    }
 
     //write to output file
     try {
@@ -81,6 +93,11 @@ void Genetic::init(){
        return;
     }
 
+    auto timenow =
+            std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+    std::cout << ctime(&timenow) << "Initializing.." << std::endl;
+
     //create random solutions
     addRandomSolutions(numPopulation_ - static_cast<int>(population_.size()));
 
@@ -89,6 +106,10 @@ void Genetic::init(){
 
     init_ = true;
 
+    timenow =
+            std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+    std::cout << ctime(&timenow) << "Initial population generated" << std::endl;
     std::cout << "Sleeping for 30 sec.." << std::endl;
     std::this_thread::sleep_for(std::chrono::seconds(30));
 }
@@ -103,7 +124,10 @@ void Genetic::run() {
     std::vector<std::shared_ptr<Solution>> children;
 
     while(true){
-        std::cout << "Starting generation " << numGeneration << std::endl;
+        auto timenow =
+                std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+        std::cout << ctime(&timenow) << "Starting generation " << numGeneration << std::endl;
 
         //TODO elitism ?
         for(int i=0; i<nElite_; i++)
@@ -129,7 +153,10 @@ void Genetic::run() {
         runPool();
 
         //local search
-        std::cout << "Starting local search" << std::endl;
+        timenow =
+                std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+        std::cout << ctime(&timenow) << "Starting local search" << std::endl;
         for(auto child : children)
             processManagers_.push_back(std::make_shared<LocalSearchManager>(child, *this, randomGen_));
         runPool();
@@ -143,7 +170,10 @@ void Genetic::run() {
 
         pressure_++;
 
-        std::cout << "Generation " << numGeneration << " ended" << std::endl;
+        timenow =
+                std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+        std::cout << ctime(&timenow) << "Generation " << numGeneration << " ended" << std::endl;
         std::cout << "Best solution until now:" << std::endl;
         std::cout << population_[0]->to_string() << std::endl;
 
@@ -182,7 +212,9 @@ void Genetic::sortPopulation() {
 }
 
 void Genetic::runPool(){
-    int nthreads = std::min(cpus_, static_cast<int>(processManagers_.size()));
+    //TODO vedi se va bene.
+    int cpus = cpus_ - 2 <= 0 ? 1 : cpus_ - 2;
+    int nthreads = std::min(cpus, static_cast<int>(processManagers_.size()));
 
     ctpl::thread_pool pool(nthreads);
 
@@ -190,9 +222,9 @@ void Genetic::runPool(){
         pool.push(std::ref(*man));
     }
 
-    std::cout << "Running threads.." << std::endl;
+    //std::cout << "Running threads.." << std::endl;
     pool.stop(true);
-    std::cout << "Finished" << std::endl;
+    //std::cout << "Finished" << std::endl;
     processManagers_.clear();
 }
 
@@ -294,4 +326,10 @@ void Genetic::checkAndSetBestSolution(std::shared_ptr<Solution> sol) {
         std::cout << "New best solution!" << std::endl;
         std::cout << bestSolution_->to_string() << std::endl;
     }
+}
+
+std::shared_ptr<Solution> Genetic::getBestSolution() {
+    std::lock_guard<std::mutex> guard(mutex_);
+
+    return bestSolution_;
 }

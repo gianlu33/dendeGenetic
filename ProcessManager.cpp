@@ -8,8 +8,9 @@
 #include <iostream> //TODO vedere se tenere
 #include <cmath>
 
-#include "GeneticException.h"
 #include "IOManager.h"
+#include "Utils.h"
+#include "Genetic.h"
 
 #include <thread>
 #include <chrono>
@@ -23,15 +24,15 @@ ProcessManager::ProcessManager(std::shared_ptr<Solution> sol, Genetic &gen) :
 
 ProcessManager::~ProcessManager() {
     //std::cout << "destroying ProcessManager" << std::endl;
-
     if(running_){
+        std::cout << "kill" << std::endl;
         TerminateProcess(pi_.hProcess, 0);
         CloseHandle( pi_.hProcess );
         CloseHandle( pi_.hThread );
         CloseHandle(si_.hStdError);
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     if(!folderName_.empty())
         cleanFS();
 }
@@ -61,7 +62,7 @@ void ProcessManager::startProcess() {
                              &pi_ ) != 0;
 
     if(!running_)
-        throw GeneticException();
+        throw utils::GeneticException();
 
 }
 
@@ -77,9 +78,9 @@ double ProcessManager::runAnalysis() {
     CloseHandle(si_.hStdError);
     running_ = false;
 
-    if(!exitcode || returnValue != 0) {
-        std::cout << "Failed" << std::endl;
-        throw GeneticException();
+    if(gen_.stop_ || !exitcode || returnValue != 0) {
+        //std::cout << "Failed" << std::endl;
+        throw utils::GeneticException();
     }
     return computeObjf(folderName_);
 }
@@ -95,7 +96,7 @@ double ProcessManager::computeObjf(std::string &folderName) {
             values.push_back(IOManager::getMaxAbsValue(filename));
         }
         catch(...){
-            throw GeneticException();
+            throw utils::GeneticException();
         }
     }
 
@@ -109,7 +110,7 @@ double ProcessManager::computeObjf(std::string &folderName) {
 
 void ProcessManager::createDirectory(){
     if(!CreateDirectoryA(folderName_.c_str(), nullptr))
-        throw GeneticException();
+        throw utils::GeneticException();
 }
 
 void ProcessManager::cleanFS() {

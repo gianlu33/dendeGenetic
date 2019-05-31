@@ -35,7 +35,7 @@ void LocalSearchManager::operator()(int id) {
     }
 
     //TODO vedi la durata di questo while
-    while(true){
+    for(int nRuns=0; nRuns<3; nRuns++){
         std::shuffle(indexes.begin(), indexes.end(), randomGen_);
         auto objf = solution_->getObjectiveFunction();
 
@@ -46,10 +46,10 @@ void LocalSearchManager::operator()(int id) {
             //analysis..
             try {
                 newObjf = runAnalysis();
-                std::cout << "[" << id << "] analysis completed: " << newObjf << std::endl;
+                //std::cout << "[" << id << "] analysis completed: " << newObjf << std::endl;
             }
             catch(...){
-                std::cout << "[" << id << "] analysis failed" << std::endl;
+                //std::cout << "[" << id << "] analysis failed" << std::endl;
                 solution_->flip(indexes[i]);
                 continue;
             }

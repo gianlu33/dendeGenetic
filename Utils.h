@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <exception>
 
 namespace utils {
     inline std::vector<int> genIndexedVector(int size){
@@ -17,6 +18,8 @@ namespace utils {
 
         return indexes;
     }
+
+    class GeneticException : public std::exception {};
 }
 
 #endif //DENDEGENETIC_UTILS_H

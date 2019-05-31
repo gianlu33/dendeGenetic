@@ -25,6 +25,7 @@ public:
 private:
     double objectiveFunction_;
     std::array<bool, 20> indexes_;
+    static constexpr const double MAX_VALUE = 1e10;
 };
 
 #endif //DENDEGENETIC_SOLUTION_H

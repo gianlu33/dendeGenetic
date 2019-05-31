@@ -26,7 +26,7 @@ void AnalysisManager::operator() (int id) {
         auto objf = runAnalysis();
         solution_->setObjectiveFunction(objf);
         gen_.checkAndSetBestSolution(solution_);
-        std::cout << "[" << id << "] analysis completed: " << objf << std::endl;
+        //std::cout << "[" << id << "] analysis completed: " << objf << std::endl;
     }
     catch(...){
         return;

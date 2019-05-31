@@ -5,10 +5,9 @@
 #include "Solution.h"
 
 #include <sstream>
-#include <limits>
 
 Solution::Solution() {
-    objectiveFunction_ = std::numeric_limits<double>::max();
+    objectiveFunction_ = MAX_VALUE;
     for(int i=0; i<20; i++)
         indexes_[i] = false;
 }
@@ -19,7 +18,7 @@ Solution::Solution(double objf, std::array<bool, 20> ind) {
 }
 
 Solution::Solution(std::array<bool, 20> ind) {
-    objectiveFunction_ = std::numeric_limits<double>::max();
+    objectiveFunction_ = MAX_VALUE;
     indexes_ = ind;
 }
 

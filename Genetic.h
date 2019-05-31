@@ -31,6 +31,7 @@ public:
     //void test();
 
     void checkAndSetBestSolution(std::shared_ptr<Solution> sol);
+    std::atomic<bool> stop_;
 
 private:
     void addRandomSolutions(int number);
@@ -42,6 +43,7 @@ private:
     void mutation(std::shared_ptr<Solution> child, double mutationRate);
     double getMutationRate(std::shared_ptr<Solution> p1, std::shared_ptr<Solution> p2);
     void initializeGenerator();
+    std::shared_ptr<Solution> getBestSolution();
 
     const int numColumns_ = 8;
     int pressure_ = 2;

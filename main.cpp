@@ -4,10 +4,10 @@
 
 #include "Genetic.h"
 
+//TODO da rimuovere
 #include "AnalysisManager.h"
 #include "Solution.h"
 #include <array>
-#include "GeneticException.h"
 #include <windows.h>
 
 std::shared_ptr<Genetic> gen;
@@ -25,7 +25,8 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    const int NUM_POPULATION = 4;
+    //TODO vedi bene sti parametri
+    const int NUM_POPULATION = 8;
     const int NUM_ELITE = 1;
 
     //setting signal handler
@@ -39,9 +40,7 @@ int main(int argc, char **argv) {
     }
 
     //run
-    std::cout << "Initializing.." << std::endl;
     gen->init();
-    std::cout << "Running.." << std::endl;
     gen->run();
 
     gen.reset();
