@@ -15,10 +15,11 @@
 #include "IOManager.h"
 #include "Utils.h"
 
-Genetic::Genetic(int numPopulation, int nElite, char *output_file) {
+Genetic::Genetic(int numPopulation, int nElite, int pressure, char *output_file) {
     cpus_ = std::thread::hardware_concurrency();
     numPopulation_ = numPopulation;
     nElite_ = nElite;
+    pressure_ = pressure;
     output_file_ = output_file;
     bestSolution_ = std::make_shared<Solution>();
     stop_ = false;
@@ -26,10 +27,11 @@ Genetic::Genetic(int numPopulation, int nElite, char *output_file) {
     initializeGenerator();
 }
 
-Genetic::Genetic(int numPopulation, int nElite, char *input_file, char *output_file) {
+Genetic::Genetic(int numPopulation, int nElite, int pressure, char *input_file, char *output_file) {
     cpus_ = std::thread::hardware_concurrency();
     numPopulation_ = numPopulation;
     nElite_ = nElite;
+    pressure_ = pressure;
     output_file_ = output_file;
     bestSolution_ = std::make_shared<Solution>();
     stop_ = false;
@@ -129,7 +131,6 @@ void Genetic::run() {
 
         std::cout << ctime(&timenow) << "Starting generation " << numGeneration << std::endl;
 
-        //TODO elitism ?
         for(int i=0; i<nElite_; i++)
             children.push_back(population_[i]);
 
@@ -167,8 +168,6 @@ void Genetic::run() {
 
         //sort
         sortPopulation();
-
-        pressure_++;
 
         timenow =
                 std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -212,7 +211,6 @@ void Genetic::sortPopulation() {
 }
 
 void Genetic::runPool(){
-    //TODO vedi se va bene.
     int cpus = cpus_ - 2 <= 0 ? 1 : cpus_ - 2;
     int nthreads = std::min(cpus, static_cast<int>(processManagers_.size()));
 

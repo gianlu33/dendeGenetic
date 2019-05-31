@@ -22,8 +22,8 @@ class Solution;
 
 class Genetic {
 public:
-    Genetic(int numPopulation, int nElite, char *output_file);
-    Genetic(int numPopulation, int nElite, char *input_file, char *output_file);
+    Genetic(int numPopulation, int nElite, int pressure, char *output_file);
+    Genetic(int numPopulation, int nElite, int pressure, char *input_file, char *output_file);
     ~Genetic();
 
     void init();
@@ -46,7 +46,7 @@ private:
     std::shared_ptr<Solution> getBestSolution();
 
     const int numColumns_ = 8;
-    int pressure_ = 2;
+    int pressure_ = 3;
     int numPopulation_;
     int nElite_;
     int cpus_;

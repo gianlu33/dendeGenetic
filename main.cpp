@@ -4,12 +4,6 @@
 
 #include "Genetic.h"
 
-//TODO da rimuovere
-#include "AnalysisManager.h"
-#include "Solution.h"
-#include <array>
-#include <windows.h>
-
 std::shared_ptr<Genetic> gen;
 char programName[50] = "opensees 5MainFRPGen.tcl";
 
@@ -26,17 +20,18 @@ int main(int argc, char **argv) {
     }
 
     //TODO vedi bene sti parametri
-    const int NUM_POPULATION = 8;
+    const int NUM_POPULATION = 10;
     const int NUM_ELITE = 1;
+    const int PRESSURE = 3;
 
     //setting signal handler
     signal(SIGINT, signalHandler);
 
     if(argc == 2) {
-        gen = std::make_shared<Genetic>(NUM_POPULATION, NUM_ELITE, argv[1]);
+        gen = std::make_shared<Genetic>(NUM_POPULATION, NUM_ELITE, PRESSURE, argv[1]);
     }
     else {
-        gen = std::make_shared<Genetic>(NUM_POPULATION, NUM_ELITE, argv[1], argv[2]);
+        gen = std::make_shared<Genetic>(NUM_POPULATION, NUM_ELITE, PRESSURE, argv[1], argv[2]);
     }
 
     //run

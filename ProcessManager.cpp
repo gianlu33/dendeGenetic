@@ -5,7 +5,7 @@
 #include "ProcessManager.h"
 #include <windows.h>
 #include <sstream>
-#include <iostream> //TODO vedere se tenere
+#include <iostream>
 #include <cmath>
 
 #include "IOManager.h"
@@ -25,7 +25,6 @@ ProcessManager::ProcessManager(std::shared_ptr<Solution> sol, Genetic &gen) :
 ProcessManager::~ProcessManager() {
     //std::cout << "destroying ProcessManager" << std::endl;
     if(running_){
-        std::cout << "kill" << std::endl;
         TerminateProcess(pi_.hProcess, 0);
         CloseHandle( pi_.hProcess );
         CloseHandle( pi_.hThread );

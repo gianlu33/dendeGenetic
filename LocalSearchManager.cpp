@@ -3,7 +3,7 @@
 //
 
 #include "LocalSearchManager.h"
-#include <iostream> //TODO vedi se tenere
+#include <iostream>
 #include <algorithm>
 
 #include "Utils.h"
@@ -34,7 +34,6 @@ void LocalSearchManager::operator()(int id) {
         return;
     }
 
-    //TODO vedi la durata di questo while
     for(int nRuns=0; nRuns<3; nRuns++){
         std::shuffle(indexes.begin(), indexes.end(), randomGen_);
         auto objf = solution_->getObjectiveFunction();
