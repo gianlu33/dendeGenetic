@@ -5,13 +5,36 @@ Il programma va eseguito da command line **nella cartella in cui si trova**.
 
 - Due modalità di funzionamento:
 
-  1. `dendeGenetic.exe <outputfile>`
+  1. `dendeGenetic.exe <num_popolazione> <num_elite> <pressure> <outputfile>`
 
      Fa partire una nuova esecuzione del programma. La popolazione iniziale verrà generata casualmente. Alla conclusione (forzata), salva i risultati trovati fino a quel momento nel file `outputfile`
 
-  2. `dendeGenetic.exe <inputfile> <outputfile>`
+  2. `dendeGenetic.exe <num_popolazione> <num_elite> <pressure> <inputfile> <outputfile>`
 
      "Riprende" il programma da dove si era interrotto. Legge i dati dal file `inputfile` (che deve essere un file generato in una precedente esecuzione, come output), e al termine dell'esecuzione salva i risultati, come prima, su `outputfile`
+
+  **N.B.** Per riprendere da dove si era interrotti, si può fare nel seguente modo:
+
+  -	Ipotizziamo vogliamo salvare i dati su un file chiamato `output.txt`
+  
+  - Alla prima run dell'algoritmo: 
+
+    `dendeGenetic.exe <num_popolazione> <num_elite> <pressure> output.txt`
+
+  -	Alle run successive:
+`dendeGenetic.exe <num_popolazione> <num_elite> <pressure> output.txt output.txt` 
+  
+- Spiegazione parametri:
+
+  - `<num_popolazione>` il numero di elementi nella popolazione. Più elementi ci sono e più l'algoritmo funziona bene, ma ovviamente ne risente il tempo di esecuzione
+  - `num_elite` il numero di elementi che, in una data generazione, dalla vecchia popolazione passano direttamente alla nuova. Sono presi gli elementi in ordine, da quello migliore in giù.
+  - `pressure` è un parametro che serve per la selezione dei due genitori quando deve essere generato un figlio. Più questo valore è alto e più probabilmente vengono selezionati i genitori migliori. Attenzione: questo non è sempre un fatto positivo: non è detto che la selezione di genitori migliori porti alla generazione di un figlio migliore.
+
+- Parametri consigliati: (rispettivamente)
+
+  - In locale (proprio pc): 10 1 3
+  - Sul server: 50 5 5
+  - Non è detto che siano i valori migliori (teoricamente bisogna provare tante combinazioni diverse per vedere come si comporta l'algoritmo)
 
 ### Spiegazione dell'algoritmo
 

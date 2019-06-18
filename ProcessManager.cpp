@@ -87,6 +87,7 @@ double ProcessManager::runAnalysis() {
 double ProcessManager::computeObjf(std::string &folderName) {
     //read from file and compute objf value
     std::vector<double> values;
+    std::vector<double> maxValues {0.021, 0.007, 0.005, 0.004, 0.002};
 
     //read from output files
     for(int i=0; i<5; i++){
@@ -100,8 +101,15 @@ double ProcessManager::computeObjf(std::string &folderName) {
     }
 
     double tot = 0;
-    for(double &val : values)
+    for(int i=0; i<5; i++){
+        auto val = values.at(i);
+        auto maxVal = maxValues.at(i);
+
+        if(val >= maxVal)
+            throw utils::GeneticException();
+
         tot += std::pow(val, 2);
+    }
 
     //TODO vedi se aggiungere un moltiplicatore per tener conto del num di colonne
     return std::sqrt(tot);

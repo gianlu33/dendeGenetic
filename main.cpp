@@ -14,24 +14,24 @@ void signalHandler(int signal){
 }
 
 int main(int argc, char **argv) {
-    if(argc < 2 || argc > 3){
-        std::cout << "Usage: " << argv[0] << " [input_file] <output_file>" << std::endl;
+    if(argc < 5 || argc > 6){
+        std::cout << "Usage: " << argv[0] << " [num_population] [num_elite] [pressure] [input_file] <output_file> " << std::endl;
         return 0;
     }
 
     //TODO vedi bene sti parametri
-    const int NUM_POPULATION = 10;
-    const int NUM_ELITE = 1;
-    const int PRESSURE = 3;
+    const int NUM_POPULATION = atoi(argv[1]);
+    const int NUM_ELITE = atoi(argv[2]);
+    const int PRESSURE = atoi(argv[3]);
 
     //setting signal handler
     signal(SIGINT, signalHandler);
 
-    if(argc == 2) {
-        gen = std::make_shared<Genetic>(NUM_POPULATION, NUM_ELITE, PRESSURE, argv[1]);
+    if(argc == 5) {
+        gen = std::make_shared<Genetic>(NUM_POPULATION, NUM_ELITE, PRESSURE, argv[4]);
     }
     else {
-        gen = std::make_shared<Genetic>(NUM_POPULATION, NUM_ELITE, PRESSURE, argv[1], argv[2]);
+        gen = std::make_shared<Genetic>(NUM_POPULATION, NUM_ELITE, PRESSURE, argv[4], argv[5]);
     }
 
     //run
