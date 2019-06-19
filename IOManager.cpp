@@ -21,16 +21,21 @@ std::vector<std::shared_ptr<Solution>> IOManager::readInput(char *filename) {
 
     for(int i=0; i<n; i++){
         float objf;
+        bool feasible;
+
         std::array<bool, 20> array{};
 
         //read objf
         ifs >> objf;
 
+        //read feasible
+        ifs >> feasible;
+
         //read element of a solution
         for(int j=0; j<20; j++)
             ifs >> array[j];
 
-        sols.push_back(std::make_shared<Solution>(objf, array));
+        sols.push_back(std::make_shared<Solution>(objf, array, feasible));
     }
 
     ifs.close();

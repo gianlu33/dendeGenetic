@@ -21,12 +21,14 @@ LocalSearchManager::~LocalSearchManager() {
 
 void LocalSearchManager::operator()(int id) {
     setFolderName(id);
+    auto solTemp = std::make_shared<Solution>(solution_->getObjectiveFunction(), solution_->getArray(), solution_->isFeasible());
 
     //first improvement: create random ordered sequence from 0 to 20
     //and according to that ordering, change the value of the index in array
-    //after that, recompute the objf, and if it's an improvement "jump" to that solution, and repeat
+    //after that, recompute the objf, and if it's an improvement "jump" to that solTemp, and repeat
     auto indexes = utils::genIndexedVector(20);
-    double newObjf;
+    std::pair<double, bool> pair;
+
     try {
         createDirectory();
     }
@@ -36,36 +38,41 @@ void LocalSearchManager::operator()(int id) {
 
     for(int nRuns=0; nRuns<3; nRuns++){
         std::shuffle(indexes.begin(), indexes.end(), randomGen_);
-        auto objf = solution_->getObjectiveFunction();
+        auto objf = solTemp->getObjectiveFunction();
 
         for(int i=0; i<20; i++){
             //change value
-            solution_->flip(indexes[i]);
+            solTemp->flip(indexes[i]);
 
             //analysis..
             try {
-                newObjf = runAnalysis();
-                //std::cout << "[" << id << "] analysis completed: " << newObjf << std::endl;
+                pair = runAnalysis();
+                //std::cout << "[" << id << "] analysis completed: " << pair.first << " " << pair.second << std::endl;
             }
             catch(...){
                 //std::cout << "[" << id << "] analysis failed" << std::endl;
-                solution_->flip(indexes[i]);
+                solTemp->flip(indexes[i]);
                 continue;
             }
 
-            if(newObjf < objf){
-                solution_->setObjectiveFunction(newObjf);
-                gen_.checkAndSetBestSolution(solution_);
+            if(pair.first < objf){
+                solTemp->setObjectiveFunction(pair.first);
+                solTemp->setFeasible(pair.second);
+                gen_.checkAndSetBestSolution(solTemp);
                 break;
             }
 
             //no improvement, restore index
-            solution_->flip(indexes[i]);
+            solTemp->flip(indexes[i]);
         }
 
         //if no improvement at all, exit
-        if(objf == solution_->getObjectiveFunction())
+        if(objf == solTemp->getObjectiveFunction())
             break;
     }
+
+    solution_->setFeasible(solTemp->isFeasible());
+    solution_->setObjectiveFunction(solTemp->getObjectiveFunction());
+    solution_->setArray(solTemp->getArray());
 }
 

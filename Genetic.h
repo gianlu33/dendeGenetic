@@ -46,7 +46,7 @@ private:
     std::shared_ptr<Solution> getBestSolution();
 
     const int numColumns_ = 8;
-    int pressure_ = 3;
+    int pressure_;
     int numPopulation_;
     int nElite_;
     int cpus_;
@@ -54,7 +54,7 @@ private:
     std::vector<std::shared_ptr<ProcessManager>> processManagers_;
     std::vector<std::shared_ptr<Solution>> population_;
     std::mt19937 randomGen_;
-    bool init_ = false;
+    std::atomic<bool> init_ = false;
     std::shared_ptr<Solution> bestSolution_;
     std::mutex mutex_;
 };

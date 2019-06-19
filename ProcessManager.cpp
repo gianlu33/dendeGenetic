@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
+#include <utility>
 
 #include "IOManager.h"
 #include "Utils.h"
@@ -65,7 +66,7 @@ void ProcessManager::startProcess() {
 
 }
 
-double ProcessManager::runAnalysis() {
+std::pair<double, bool> ProcessManager::runAnalysis() {
     DWORD returnValue;
 
     startProcess();
@@ -84,10 +85,11 @@ double ProcessManager::runAnalysis() {
     return computeObjf(folderName_);
 }
 
-double ProcessManager::computeObjf(std::string &folderName) {
+std::pair<double, bool> ProcessManager::computeObjf(std::string &folderName) {
     //read from file and compute objf value
     std::vector<double> values;
-    std::vector<double> maxValues {0.021, 0.007, 0.005, 0.004, 0.002};
+    const double maxD1 = 0.021, maxD25 = 0.007;
+    bool feasible = true;
 
     //read from output files
     for(int i=0; i<5; i++){
@@ -103,16 +105,16 @@ double ProcessManager::computeObjf(std::string &folderName) {
     double tot = 0;
     for(int i=0; i<5; i++){
         auto val = values.at(i);
-        auto maxVal = maxValues.at(i);
 
-        if(val >= maxVal)
-            throw utils::GeneticException();
+        if((i == 0 && val >= maxD1) || (i != 0 && val > maxD25)) {
+            feasible = false;
+        }
 
         tot += std::pow(val, 2);
     }
 
     //TODO vedi se aggiungere un moltiplicatore per tener conto del num di colonne
-    return std::sqrt(tot);
+    return std::make_pair(std::sqrt(tot), feasible);
 }
 
 void ProcessManager::createDirectory(){

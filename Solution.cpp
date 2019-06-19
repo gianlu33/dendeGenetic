@@ -10,16 +10,19 @@ Solution::Solution() {
     objectiveFunction_ = MAX_VALUE;
     for(int i=0; i<20; i++)
         indexes_[i] = false;
+    isFeasible_ = false;
 }
 
-Solution::Solution(double objf, std::array<bool, 20> ind) {
+Solution::Solution(double objf, std::array<bool, 20> ind, bool feasible) {
     objectiveFunction_ = objf;
     indexes_ = ind;
+    isFeasible_ = feasible;
 }
 
 Solution::Solution(std::array<bool, 20> ind) {
     objectiveFunction_ = MAX_VALUE;
     indexes_ = ind;
+    isFeasible_ = false;
 }
 
 void Solution::setObjectiveFunction(double objf) {
@@ -53,7 +56,7 @@ std::array<bool, 20> Solution::getArray() {
 std::string Solution::to_string() {
     std::stringstream ss;
 
-    ss << objectiveFunction_ << std::endl << getArrayString();
+    ss << objectiveFunction_  << " " << isFeasible_ << std::endl << getArrayString();
 
     return ss.str();
 }
@@ -65,4 +68,20 @@ std::string Solution::getArrayString() {
         ss << value << " ";
 
     return ss.str();
+}
+
+bool Solution::isFeasible() {
+    return isFeasible_;
+}
+
+bool Solution::setFeasible(bool feasible) {
+    isFeasible_ = feasible;
+}
+
+bool Solution::equals(Solution s1, Solution s2) {
+    return s1.objectiveFunction_ == s2.objectiveFunction_ && s1.isFeasible_ == s2.isFeasible_ && s1.indexes_ == s2.indexes_;
+}
+
+bool Solution::compare(Solution s1, Solution s2) {
+    return s1.objectiveFunction_ < s2.objectiveFunction_;
 }

@@ -17,12 +17,12 @@ public:
     ProcessManager(std::shared_ptr<Solution> sol, Genetic &gen);
     ~ProcessManager();
     virtual void operator()(int id) = 0;
-    static double computeObjf(std::string &folderName);
+    static std::pair<double, bool> computeObjf(std::string &folderName);
 
 
 protected:
     void startProcess();
-    double runAnalysis();
+    std::pair<double, bool> runAnalysis();
     void createDirectory();
     void cleanFS();
     void setFolderName(int id);

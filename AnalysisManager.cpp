@@ -23,8 +23,9 @@ void AnalysisManager::operator() (int id) {
 
     try {
         createDirectory();
-        auto objf = runAnalysis();
-        solution_->setObjectiveFunction(objf);
+        auto pair = runAnalysis();
+        solution_->setObjectiveFunction(pair.first);
+        solution_->setFeasible(pair.second);
         gen_.checkAndSetBestSolution(solution_);
         //std::cout << "[" << id << "] analysis completed: " << objf << std::endl;
     }

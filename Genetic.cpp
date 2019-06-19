@@ -9,6 +9,7 @@
 #include <cmath>
 #include <ctime>
 #include <chrono>
+#include <algorithm>
 
 #include "Genetic.h"
 #include "AnalysisManager.h"
@@ -48,8 +49,8 @@ Genetic::Genetic(int numPopulation, int nElite, int pressure, char *input_file, 
         return;
     }
 
-    if(!population_.empty())
-        checkAndSetBestSolution(population_[0]);
+    for(auto &sol : population_)
+        checkAndSetBestSolution(sol);
 
     //if population is more than numPopulation, delete the worst solutions
     while(population_.size() > numPopulation)
@@ -63,18 +64,22 @@ Genetic::~Genetic() {
 
     if(!init_) return;
 
-    //sort array (not necessary, but do it anyway)
-    sortPopulation();
-
     //add best solution if not yet present
     auto bestSol = getBestSolution();
-    if(population_[0]->getObjectiveFunction() > bestSol->getObjectiveFunction()){
-        population_.insert(population_.begin(), bestSol);
-        population_.pop_back();
+
+    auto result = std::find_if(population_.begin(), population_.end(),[bestSol](std::shared_ptr<Solution> sol)
+        {return Solution::equals(*bestSol, *sol);});
+
+    if(result == std::end(population_)){
+        population_.push_back(bestSol);
     }
+
+    //sort array
+    sortPopulation();
 
     //write to output file
     try {
+        std::cout << "Writing to file.." << std::endl;
         IOManager::writeOutput(output_file_, population_);
     }
     catch(...){
@@ -207,7 +212,7 @@ std::array<bool, 20> Genetic::generateRandomArray() {
 void Genetic::sortPopulation() {
     std::sort(population_.begin(), population_.end(),
               [](std::shared_ptr<Solution> a,std::shared_ptr<Solution> b)
-                {return a->getObjectiveFunction() < b->getObjectiveFunction();});
+                {return Solution::compare(*a, *b);});
 }
 
 void Genetic::runPool(){
@@ -319,8 +324,8 @@ void Genetic::initializeGenerator(){
 void Genetic::checkAndSetBestSolution(std::shared_ptr<Solution> sol) {
     std::lock_guard<std::mutex> guard(mutex_);
 
-    if(sol->getObjectiveFunction() < bestSolution_->getObjectiveFunction()) {
-        bestSolution_ = std::make_shared<Solution>(sol->getObjectiveFunction(),sol->getArray());
+    if(sol->isFeasible() && sol->getObjectiveFunction() < bestSolution_->getObjectiveFunction()) {
+        bestSolution_ = std::make_shared<Solution>(sol->getObjectiveFunction(),sol->getArray(), sol->isFeasible());
         std::cout << "New best solution!" << std::endl;
         std::cout << bestSolution_->to_string() << std::endl;
     }
