@@ -8,6 +8,7 @@
 
 Solution::Solution() {
     objectiveFunction_ = MAX_VALUE;
+    fitness_ = MAX_VALUE;
     for(int i=0; i<20; i++)
         indexes_[i] = false;
     isFeasible_ = false;
@@ -17,10 +18,12 @@ Solution::Solution(double objf, std::array<bool, 20> ind, bool feasible) {
     objectiveFunction_ = objf;
     indexes_ = ind;
     isFeasible_ = feasible;
+    setFitness();
 }
 
 Solution::Solution(std::array<bool, 20> ind) {
     objectiveFunction_ = MAX_VALUE;
+    fitness_ = MAX_VALUE;
     indexes_ = ind;
     isFeasible_ = false;
 }
@@ -56,7 +59,7 @@ std::array<bool, 20> Solution::getArray() {
 std::string Solution::to_string() {
     std::stringstream ss;
 
-    ss << objectiveFunction_  << " " << isFeasible_ << std::endl << getArrayString();
+    ss << objectiveFunction_  << " " << fitness_ << " " << isFeasible_ << std::endl << getArrayString();
 
     return ss.str();
 }
@@ -83,5 +86,27 @@ bool Solution::equals(Solution s1, Solution s2) {
 }
 
 bool Solution::compare(Solution s1, Solution s2) {
-    return s1.objectiveFunction_ < s2.objectiveFunction_;
+    return s1.fitness_ < s2.fitness_;
+}
+
+double Solution::getFitness() {
+    return fitness_;
+}
+
+void Solution::setFitness() {
+    fitness_ = computeFitness(objectiveFunction_);
+}
+
+int Solution::count1Columns() {
+    int n = 0;
+
+    for(int i=0; i<20; i++){
+        if(indexes_[i]) n++;
+    }
+
+    return n;
+}
+
+double Solution::computeFitness(double objf) {
+    return objf;
 }

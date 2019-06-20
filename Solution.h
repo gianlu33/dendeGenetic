@@ -25,12 +25,17 @@ public:
     bool setFeasible(bool feasible);
     static bool equals(Solution s1, Solution s2);
     static bool compare(Solution s1, Solution s2);
+    double getFitness();
+    void setFitness();
+    int count1Columns();
+    double computeFitness(double objf);
 
 private:
     double objectiveFunction_;
     std::array<bool, 20> indexes_;
     static constexpr const double MAX_VALUE = 1e10;
     bool isFeasible_;
+    double fitness_;
 };
 
 #endif //DENDEGENETIC_SOLUTION_H

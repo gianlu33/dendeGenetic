@@ -38,7 +38,7 @@ void LocalSearchManager::operator()(int id) {
 
     for(int nRuns=0; nRuns<RUNS; nRuns++){
         std::shuffle(indexes.begin(), indexes.end(), randomGen_);
-        auto objf = solTemp->getObjectiveFunction();
+        auto fitness = solTemp->getFitness();
 
         for(int i=0; i<ITERATIONS; i++){
             //change value
@@ -55,9 +55,10 @@ void LocalSearchManager::operator()(int id) {
                 continue;
             }
 
-            if(pair.first < objf){
+            if(solTemp->computeFitness(pair.first) < fitness){
                 solTemp->setObjectiveFunction(pair.first);
                 solTemp->setFeasible(pair.second);
+                solTemp->setFitness();
                 gen_.checkAndSetBestSolution(solTemp);
                 break;
             }
@@ -67,12 +68,13 @@ void LocalSearchManager::operator()(int id) {
         }
 
         //if no improvement at all, exit
-        if(objf == solTemp->getObjectiveFunction())
+        if(fitness >= solTemp->getFitness())
             break;
     }
 
     solution_->setFeasible(solTemp->isFeasible());
     solution_->setObjectiveFunction(solTemp->getObjectiveFunction());
     solution_->setArray(solTemp->getArray());
+    solution_->setFitness();
 }
 

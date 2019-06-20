@@ -324,7 +324,7 @@ void Genetic::initializeGenerator(){
 void Genetic::checkAndSetBestSolution(std::shared_ptr<Solution> sol) {
     std::lock_guard<std::mutex> guard(mutex_);
 
-    if(sol->isFeasible() && sol->getObjectiveFunction() < bestSolution_->getObjectiveFunction()) {
+    if(sol->isFeasible() && Solution::compare(*sol, *bestSolution_)) {
         bestSolution_ = std::make_shared<Solution>(sol->getObjectiveFunction(),sol->getArray(), sol->isFeasible());
         std::cout << "New best solution!" << std::endl;
         std::cout << bestSolution_->to_string() << std::endl;

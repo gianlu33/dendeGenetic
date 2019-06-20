@@ -26,6 +26,7 @@ void AnalysisManager::operator() (int id) {
         auto pair = runAnalysis();
         solution_->setObjectiveFunction(pair.first);
         solution_->setFeasible(pair.second);
+        solution_->setFitness();
         gen_.checkAndSetBestSolution(solution_);
         //std::cout << "[" << id << "] analysis completed: " << objf << std::endl;
     }
