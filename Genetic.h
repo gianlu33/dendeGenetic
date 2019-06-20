@@ -44,6 +44,7 @@ private:
     double getMutationRate(std::shared_ptr<Solution> p1, std::shared_ptr<Solution> p2);
     void initializeGenerator();
     std::shared_ptr<Solution> getBestSolution();
+    int getDimPool();
 
     const int numColumns_ = 8;
     int pressure_;

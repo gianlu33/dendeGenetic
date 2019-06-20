@@ -19,6 +19,8 @@ public:
 
 private:
     std::mt19937 &randomGen_;
+    const int RUNS = 3;
+    const int ITERATIONS = 5;
 };
 
 

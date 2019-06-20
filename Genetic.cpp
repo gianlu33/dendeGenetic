@@ -127,7 +127,7 @@ void Genetic::run() {
         return;
     }
 
-    int numGeneration = 0;
+    int numGeneration = 1;
     std::vector<std::shared_ptr<Solution>> children;
 
     while(true){
@@ -177,7 +177,7 @@ void Genetic::run() {
         timenow =
                 std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
-        std::cout << ctime(&timenow) << "Generation " << numGeneration << " ended" << std::endl;
+        std::cout << ctime(&timenow) << "Generation " << numGeneration++ << " ended" << std::endl;
         std::cout << "Best solution until now:" << std::endl;
         std::cout << population_[0]->to_string() << std::endl;
 
@@ -216,7 +216,7 @@ void Genetic::sortPopulation() {
 }
 
 void Genetic::runPool(){
-    int cpus = cpus_ - 2 <= 0 ? 1 : cpus_ - 2;
+    int cpus = getDimPool();
     int nthreads = std::min(cpus, static_cast<int>(processManagers_.size()));
 
     ctpl::thread_pool pool(nthreads);
@@ -335,4 +335,12 @@ std::shared_ptr<Solution> Genetic::getBestSolution() {
     std::lock_guard<std::mutex> guard(mutex_);
 
     return bestSolution_;
+}
+
+int Genetic::getDimPool() {
+    if(cpus_ > 10){
+        //sono sul server
+        return 75;
+    }
+    return cpus_ - 2 <= 0 ? 1 : cpus_ - 2;
 }

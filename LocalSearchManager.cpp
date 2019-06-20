@@ -36,11 +36,11 @@ void LocalSearchManager::operator()(int id) {
         return;
     }
 
-    for(int nRuns=0; nRuns<3; nRuns++){
+    for(int nRuns=0; nRuns<RUNS; nRuns++){
         std::shuffle(indexes.begin(), indexes.end(), randomGen_);
         auto objf = solTemp->getObjectiveFunction();
 
-        for(int i=0; i<20; i++){
+        for(int i=0; i<ITERATIONS; i++){
             //change value
             solTemp->flip(indexes[i]);
 

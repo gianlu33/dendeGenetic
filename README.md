@@ -26,14 +26,14 @@ Il programma va eseguito da command line **nella cartella in cui si trova**.
   
 - Spiegazione parametri:
 
-  - `<num_popolazione>` il numero di elementi nella popolazione. Più elementi ci sono e più l'algoritmo funziona bene, ma ovviamente ne risente il tempo di esecuzione
+  - `num_popolazione` il numero di elementi nella popolazione. Più elementi ci sono e più l'algoritmo funziona bene, ma ovviamente ne risente il tempo di esecuzione
   - `num_elite` il numero di elementi che, in una data generazione, dalla vecchia popolazione passano direttamente alla nuova. Sono presi gli elementi in ordine, da quello migliore in giù.
   - `pressure` è un parametro che serve per la selezione dei due genitori quando deve essere generato un figlio. Più questo valore è alto e più probabilmente vengono selezionati i genitori migliori. Attenzione: questo non è sempre un fatto positivo: non è detto che la selezione di genitori migliori porti alla generazione di un figlio migliore.
 
 - Parametri consigliati: (rispettivamente)
 
   - In locale (proprio pc): 10 1 3
-  - Sul server: 50 5 5
+  - Sul server: 75 5 5
   - Non è detto che siano i valori migliori (teoricamente bisogna provare tante combinazioni diverse per vedere come si comporta l'algoritmo)
 
 ### Spiegazione dell'algoritmo
